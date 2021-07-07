@@ -23,9 +23,37 @@ function getForcast(cityName) {
         <p>Wind Speed: ${apiData.wind.speed}</p>
         <p>Forcast: ${apiData.weather[0].main}</p>
         <p>Humidity: ${apiData.main.humidity}</p>
+        
 
         </article>
         `)
+        var lat=apiData.coord.lat
+        var lon=apiData.coord.lon
     })
+        var url2=`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${APIkey}&units=imperial`
+        $.ajax({
+            type:"GET",
+            url:url2
+        }).then(function(apiResponse){
+            console.log(apiResponse)
+            var apiList = apiResponse.list
+            var htmlCode = ""
+            for (let index = 0; index < apiList.length; index+=8) {
+                const apiData = apiList[index];
+                htmlCode += `<article class="bg-primary">
+                <p>${apiData.dt_txt}<span><img src="https://openweathermap.org/img/wn/${apiData.weather[0].icon}@2x.png" /></p>
+                <p>Temperature: ${apiData.main.temp}</p>
+                <p>Wind Speed: ${apiData.wind.speed}</p>
+                <p>Forcast: ${apiData.weather[0].main}</p>
+                <p>Humidity: ${apiData.main.humidity}</p>
+        
+                </article>
+                `
+            }
+            console.log(htmlCode)
+            $("#fiveDayForecast").html(htmlCode)
+
+        })
+    
 
 }
