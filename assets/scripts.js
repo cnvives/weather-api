@@ -1,13 +1,23 @@
 var APIkey = "36373ba886379f34bb87629143936058"
 var url = `https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}`
+var previousSearch=  JSON.parse(localStorage.getItem("weatherAPI")) || []
 
 $("#btn").on("click",function(event){
     event.preventDefault()
     var usersearch = $("#cityinput").val()
     console.log(usersearch);
+    if(previousSearch.indexOf(usersearch) === -1){
+        previousSearch.push(usersearch)
+        localStorage.setItem("weatherAPI",JSON.stringify(previousSearch))
+        displayPreviousSearch()
+    }
 getForcast(usersearch);
 })
 
+function displayPreviousSearch(){
+    var previousSearch=  JSON.parse(localStorage.getItem("weatherAPI")) || []
+
+}
 function getForcast(cityName) {
 
     var url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${APIkey}&units=imperial`
@@ -29,6 +39,31 @@ function getForcast(cityName) {
         `)
         var lat=apiData.coord.lat
         var lon=apiData.coord.lon
+        var uvUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${APIkey}`
+
+        $.ajax({
+            type:"GET",
+            url:uvUrl
+        }).then(function(uvapiData){
+            console.log(uvapiData,"UV")
+
+            var uvValue= parseFloat(uvapiData.current.uvi);
+            if (uvValue >= 8){
+                $("#uv").html(`<h5 class="bg-danger">${uvValue}</h5>`)
+            }else if(uvValue >= 6){
+                $("#uv").html(`<h5 class="bg-warning">${uvValue}</h5>`)
+
+            }else if(uvValue >= 3){
+                $("#uv").html(`<h5 class="moderate">${uvValue}</h5>`)
+
+            }else{
+                $("#uv").html(`<h5 class="bg-success">${uvValue}</h5>`)
+
+            }
+
+
+        })
+
     })
         var url2=`https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${APIkey}&units=imperial`
         $.ajax({
@@ -50,10 +85,10 @@ function getForcast(cityName) {
                 </article>
                 `
             }
-            console.log(htmlCode)
             $("#fiveDayForecast").html(htmlCode)
 
         })
     
 
 }
+
